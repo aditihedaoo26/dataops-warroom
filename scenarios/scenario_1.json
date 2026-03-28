@@ -1,0 +1,52 @@
+{
+  "incident_id": "1",
+  "tasks": [
+    {
+      "task_type": "incident_triage",
+      "description": "The nightly healthcare ETL pipeline failed at 03:00 AM.",
+      "error": "null value in column 'patient_id' violates not-null constraint",
+      "logs": "Traceback (most recent call last): File 'etl.py', line 42...",
+      "expected_root_cause": "data_quality",
+      "expected_severity": "high"
+    },
+    {
+      "task_type": "sql_optimization",
+      "description": "The current query finding patients with visits is too slow. Optimize it.",
+      "schema": [
+        "CREATE TABLE patients (id INTEGER PRIMARY KEY, name TEXT);",
+        "CREATE TABLE visits (patient_id INTEGER, date TEXT);"
+      ],
+      "data": [
+        "INSERT INTO patients VALUES (1, 'Alice');",
+        "INSERT INTO patients VALUES (2, 'Bob');",
+        "INSERT INTO patients VALUES (3, 'Charlie');",
+        "INSERT INTO visits VALUES (1, '2023-01-01');",
+        "INSERT INTO visits VALUES (1, '2023-01-05');",
+        "INSERT INTO visits VALUES (2, '2023-01-02');"
+      ],
+      "query": "SELECT name FROM patients WHERE id IN (SELECT patient_id FROM visits);",
+      "expected_query": "SELECT DISTINCT name FROM patients JOIN visits ON patients.id = visits.patient_id;"
+    },
+    {
+      "task_type": "data_cleaning",
+      "description": "Clean the clinical dataset. Rules: 1) Fill missing/implausible age (>120) with -1. 2) Fill missing gender with 'U'. 3) Convert MM-DD-YY to YYYY-MM-DD. 4) Convert negative lab values to 0.0.",
+      "dirty_data": [
+        {"patient_id": 1, "age": null, "gender": "M", "visit_date": "12-01-23", "lab_value": 45.5},
+        {"patient_id": 2, "age": 200, "gender": null, "visit_date": "2023-01-13", "lab_value": 30.0},
+        {"patient_id": 3, "age": 45, "gender": "F", "visit_date": "2023-01-14", "lab_value": -10.0}
+      ],
+      "expected_cleaned_data": [
+        {"patient_id": 1, "age": -1, "gender": "M", "visit_date": "2023-01-12", "lab_value": 45.5},
+        {"patient_id": 2, "age": -1, "gender": "U", "visit_date": "2023-01-13", "lab_value": 30.0},
+        {"patient_id": 3, "age": 45, "gender": "F", "visit_date": "2023-01-14", "lab_value": 0.0}
+      ]
+    },
+    {
+      "task_type": "code_review",
+      "description": "Review the Python ETL script and identify the bug and its fix.",
+      "code_snippet": "def load_patients(db_path, data):\n    conn = sqlite3.connect(db_path)\n    cursor = conn.cursor()\n    for row in data:\n        age_category = 'Adult' if row['age'] >= 18 else 'Minor'\n        cursor.execute('INSERT INTO processed_patients (id, age_category) VALUES (?, ?)', (row['id'], age_category))\n    conn.commit()\n    conn.close()",
+      "expected_bug": "null",
+      "expected_fix": "default"
+    }
+  ]
+}

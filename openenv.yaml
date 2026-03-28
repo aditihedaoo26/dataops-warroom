@@ -1,0 +1,84 @@
+name: dataops-warroom
+version: "1.0.0"
+description: >
+  A real-world DataOps environment where an AI agent acts as a Data Engineering
+  Operations specialist inside a healthcare analytics company. The agent triages
+  production incidents, optimizes broken SQL queries, cleans dirty clinical data,
+  and reviews pipeline code for bugs and security issues.
+author: DataOps War Room
+tags:
+  - healthcare
+  - data-engineering
+  - sql
+  - code-review
+  - incident-response
+  - openenv
+
+tasks:
+  - id: task1_triage
+    name: "Incident Triage"
+    difficulty: easy
+    description: >
+      A production pipeline alert has fired. Given logs and alert context,
+      classify the root cause, assign severity, identify affected services,
+      and write a brief summary for the on-call team.
+    max_steps: 1
+    score_range: [0.0, 1.0]
+
+  - id: task2_sql
+    name: "SQL Query Optimization"
+    difficulty: medium
+    description: >
+      A slow or broken SQL query is degrading pipeline performance. Rewrite it
+      to be both correct and performant, and explain your changes.
+    max_steps: 1
+    score_range: [0.0, 1.0]
+
+  - id: task3_cleaning
+    name: "Clinical Data Cleaning"
+    difficulty: medium_hard
+    description: >
+      Upstream healthcare data is dirty — missing values, bad formats, implausible
+      lab results. Clean the dataset and document every issue found and action taken.
+    max_steps: 1
+    score_range: [0.0, 1.0]
+
+  - id: task4_review
+    name: "Pipeline Code Review"
+    difficulty: hard
+    description: >
+      Review the pipeline code that caused the incident. Identify all bugs, security
+      vulnerabilities, and style issues. Suggest concrete fixes ranked by severity.
+    max_steps: 1
+    score_range: [0.0, 1.0]
+
+observation_space:
+  type: object
+  properties:
+    task_id: {type: string}
+    phase: {type: string, enum: [triage, sql_optimization, data_cleaning, code_review]}
+    context: {type: object, description: "Task-specific context (logs, queries, data, code)"}
+    instructions: {type: string}
+    step_count: {type: integer}
+    max_steps: {type: integer}
+
+action_space:
+  type: object
+  properties:
+    task_id: {type: string}
+    phase: {type: string}
+    triage: {type: object, nullable: true}
+    sql: {type: object, nullable: true}
+    cleaning: {type: object, nullable: true}
+    review: {type: object, nullable: true}
+
+reward:
+  type: float
+  range: [0.0, 1.0]
+  description: "Weighted score across correctness, completeness, and quality dimensions."
+
+baseline_scores:
+  task1_triage: 0.72
+  task2_sql: 0.58
+  task3_cleaning: 0.61
+  task4_review: 0.44
