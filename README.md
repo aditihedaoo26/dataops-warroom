@@ -1,3 +1,12 @@
+---
+title: DataOps War Room
+emoji: 🚨
+colorFrom: red
+colorTo: blue
+sdk: docker
+pinned: false
+app_port: 7860
+---
 # DataOps War Room 🚨
 
 **Meta PyTorch OpenEnv Hackathon Submission**
